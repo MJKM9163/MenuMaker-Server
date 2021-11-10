@@ -1,0 +1,149 @@
+import Menu from "../../models/menu";
+
+
+export const riceList = async ctx => {
+    const request = parseInt(ctx.request.body.number);
+    const ricesAraay = [];
+    ctx.body = [];
+    for (let i = 0; i < request; i++) {
+        try {
+            const rices = await Menu.aggregate([
+                {$match: { category: '밥' }},
+                {$sample: { size: 3 }}
+            ]);
+            if (ricesAraay.length == 3) {
+                check1: for (let n = 0; n < 3; n++) {
+                    const check1 = rices[n].menuname;
+                    for (let u = 0; u < 3; u ++) {
+                        const check2 = ricesAraay[u].menuname;
+                        const final = check1 === check2;
+                        if (final) {
+                            i--;
+                            break check1;
+                        } else if (n == 2 && u == 2 && !final) {
+                            ctx.body.push(rices);
+                        }
+                    }
+                    if (n == 2) {
+                        //ricesAraay.push(...rices);
+                        ricesAraay.length = 0;
+                    }
+                }
+            } else if (ricesAraay.length == 0) {
+                ricesAraay.push(...rices);
+                ctx.body.push(rices)
+            }
+        } catch (e) {
+            ctx.throw(500, e);
+        }
+    }
+    console.log("rice 끝");
+};
+
+
+export const mainList = async ctx => {
+    const request = parseInt(ctx.request.body.number);
+    const mainData = []; // 일일 메뉴 list
+    const list = [] // 이때까지 나왔던 메뉴 list
+    ctx.body = []
+    for (let i = 0; i < request; i++) {
+        try {
+            const i = 0;
+            while (i < 1) {
+                const mains = await Menu.aggregate([
+                    {$match: { main: true }},
+                    {$sample: { size: 1 }}
+                ]);
+                const check2 = list.find(e => {
+                    if (e.menuname === mains[0].menuname) {
+                        return true;
+                    };
+                })
+                const M_length = mainData.length;
+                const check = mainData.find(e => {
+                    if (e.menuname !== mains[0].menuname && !check2) {
+                        if (M_length == 1 || M_length == 3 || M_length == 5) {
+                            const categoryCheck = mainData[M_length-1].category === mains[0].category;
+                            if (categoryCheck) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    } 
+                    return true;
+                })
+                if (!check2 && !check) {
+                    mainData.push(...mains);
+                    list.push(...mains);
+                    if (mainData.length === 6) {
+                        const mainSlice = mainData.slice();
+                        ctx.body.push(mainSlice);
+                        break;
+                    }
+                }
+            }
+            mainData.splice(0, mainData.length);
+        } catch (e) {
+            ctx.throw(500, e);
+        };
+    }
+    console.log("main 끝");
+};
+
+export const sideList = async ctx => {
+    const request = parseInt(ctx.request.body.number);
+    ctx.body = [];
+    for (let i = 0; i < request; i++) {
+        const checkCycle = [];
+        const sideArray = [];
+        const mainFindArray = [];
+        try {
+            for (let n = 0; n < 9; n++) {
+                const sides = await Menu.aggregate([
+                    {$match: { main: false, category: { $nin: ["밥", "김치"]}, cook_type: { $nin: ["국", "찌개"]} }},
+                    {$sample: { size: 1 }}
+                ]);
+                const check = mainFindArray.find(e => {
+                    if (e.main_ingredient === sides[0].main_ingredient) {
+                        return true;
+                    } else {
+                        if (n == 2 || n == 5 || n == 8) {
+                            for (let i = 0; i < 2; i++) {
+                                const typeCheck2 = checkCycle[i].cook_type === sides[0].cook_type;
+                                if (typeCheck2) {
+                                    return true;
+                                }
+                            }
+                        } else if (n == 1 || n == 4 || n == 7) {
+                            const typeCheck = checkCycle[0].cook_type === sides[0].cook_type;
+                                if (typeCheck) {
+                                    return true;
+                                }
+                        }
+                        return false;
+                    }   
+                });
+                if (check) {
+                    n--;
+                } else if (!check) {
+                    if (checkCycle.length === 3 && n !== 8) {
+                        sideArray.push(...checkCycle);
+                        mainFindArray.push(...sides);
+                        checkCycle.length = 0;
+                        checkCycle.push(...sides);
+                    } else if (checkCycle.length < 3) {
+                        checkCycle.push(...sides);
+                        mainFindArray.push(...sides);
+                    }
+                }
+                    if (n == 8) {
+                        sideArray.push(...checkCycle);
+                        ctx.body.push(sideArray);
+                    }
+                }
+        } catch (e) {
+            ctx.throw(500, e);
+        };
+    }
+    console.log("side 끝");
+};
