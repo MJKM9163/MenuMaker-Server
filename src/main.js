@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 
 import api from './api';
 //rhkrrbaud:apsbfh9163@
-const URI = `mongodb://rhkrrbaud:apsbfh9163@18.221.105.228:27017/menumaker`
+const URI = `mongodb://rhkrrbaud:apsbfh9163@3.144.241.82:27017/menumaker`
 const { PORT, MONGO_URI } = process.env;
 
 mongoose
