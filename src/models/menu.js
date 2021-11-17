@@ -10,6 +10,7 @@ const MenuSchema = new Schema ({
     category: String,
     cook_type: String,
     sauce_base: String,
+    country: String,
 });
 
 MenuSchema.statics.findByMenuname = function(menuname) {

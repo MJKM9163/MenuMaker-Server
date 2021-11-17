@@ -15,7 +15,7 @@ export const register = async ctx => {
     console.log(ctx.params);
 
     const schema = Joi.object().keys({
-        menuname: Joi.string().max(15).required(),
+        menuname: Joi.string().required(),
         main: Joi.boolean().required(),
         description: Joi.string().required(),
         main_ingredient: Joi.string().required(),
@@ -23,6 +23,7 @@ export const register = async ctx => {
         category: Joi.string().required(),
         cook_type: Joi.required(),
         sauce_base: Joi.required(),
+        country: Joi.required(),
 
     })
 
@@ -42,7 +43,8 @@ export const register = async ctx => {
             ingredient,
             category,
             cook_type,
-            sauce_base } = ctx.request.body;
+            sauce_base,
+            country } = ctx.request.body;
     try {
         const exists = await Menu.findByMenuname(menuname)
         if (exists) {
@@ -60,6 +62,7 @@ export const register = async ctx => {
             category,
             cook_type,
             sauce_base,
+            country
         });
 
         await menu.save();

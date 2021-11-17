@@ -176,7 +176,6 @@ export const soupList = async ctx => {
                 }
             }
             const soups = filterAraay;
-            console.log(soups)
             if (soupsAraay.length == 3) {
                 check1: for (let n = 0; n < 3; n++) {
                     const nameCheck = soups[n].menuname;
