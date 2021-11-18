@@ -6,7 +6,7 @@ const MenuSchema = new Schema ({
     main: Boolean,
     description: String,
     main_ingredient: String,
-    ingredient: String,
+    ingredient: Array,
     category: String,
     cook_type: String,
     sauce_base: String,

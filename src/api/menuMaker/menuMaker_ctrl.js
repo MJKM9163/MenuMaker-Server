@@ -1,6 +1,5 @@
 import Menu from "../../models/menu";
 
-
 export const riceList = async ctx => {
     const request = parseInt(ctx.request.body.number);
     const ricesAraay = [];

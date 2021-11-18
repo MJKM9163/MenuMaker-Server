@@ -1,25 +1,14 @@
 import Joi from 'joi';
 import Menu from '../../models/menu';
 
-// const MenuSchema = new Schema ({
-//     menuname: String,
-//     image: Buffer,
-//     description: String,
-//     main_ingredient: String,
-//     ingredient: [String],
-// });
-
 export const register = async ctx => {
-    //console.log(ctx);
-    console.log(ctx.query);
-    console.log(ctx.params);
 
     const schema = Joi.object().keys({
         menuname: Joi.string().required(),
         main: Joi.boolean().required(),
         description: Joi.string().required(),
         main_ingredient: Joi.string().required(),
-        ingredient: Joi.required(),
+        ingredientArray: Joi.array().items(Joi.string()).unique().required(),
         category: Joi.string().required(),
         cook_type: Joi.required(),
         sauce_base: Joi.required(),
@@ -34,13 +23,13 @@ export const register = async ctx => {
         ctx.body = result.error;
         return;
     }
-    console.log(ctx.request.body);
+    console.log("request", ctx.request.body);
 
     const { menuname,
             main,
             description,
             main_ingredient,
-            ingredient,
+            ingredientArray,
             category,
             cook_type,
             sauce_base,
@@ -58,7 +47,7 @@ export const register = async ctx => {
             main,
             description,
             main_ingredient,
-            ingredient,
+            ingredient: ingredientArray,
             category,
             cook_type,
             sauce_base,

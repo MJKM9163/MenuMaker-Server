@@ -12,7 +12,7 @@ import mongoose from 'mongoose';
 import api from './api';
 //rhkrrbaud:apsbfh9163@3.144.241.82:27017
 const URI = `mongodb://localhost:27017/menumaker`
-const { PORT, MONGO_URI } = process.env;
+const { PORT } = process.env;
 
 mongoose
 .connect(URI, { useUnifiedTopology: true, useNewUrlParser: true })
