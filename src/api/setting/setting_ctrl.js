@@ -2,10 +2,19 @@ import Menu from "../../models/menu";
 
 export const findMain = async ctx => {
     try {
-        const findAll = await Menu.find({menuname: '콩나물밥'})
+        const findAll = await Menu.aggregate([
+            {$group: {
+                '_id': '$main_ingredient',
+                'count': {'$sum': 1}}}
+        ])
         ctx.body = findAll;
-        //console.log(findAll.length)
+        console.log(ctx.body)
     } catch (e) {
         ctx.throw(500, e);
-    }//여기서부터 다시 시작
+    }
+    console.log("리스트 불러옴");
 }
+
+// '_id': {'main_ingredient': '$main_ingredient'},
+//                 'count': {'$sum': 1}}},
+//                 {$match: {_id: {main_ingredient: '두부'}}}

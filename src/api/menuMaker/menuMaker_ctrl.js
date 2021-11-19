@@ -42,8 +42,8 @@ export const riceList = async ctx => {
 export const mainList = async ctx => {
     const request = parseInt(ctx.request.body.number);
     const mainData = []; // 일일 메뉴 list
-    const list = [] // 이때까지 나왔던 메뉴 list
-    ctx.body = []
+    const list = []; // 이때까지 나왔던 메뉴 list
+    ctx.body = [];
     for (let i = 0; i < request; i++) {
         try {
             const i = 0;
