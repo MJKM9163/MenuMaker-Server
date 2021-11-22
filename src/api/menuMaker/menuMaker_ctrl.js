@@ -2,6 +2,7 @@ import Menu from "../../models/menu";
 
 export const riceList = async ctx => {
     const request = parseInt(ctx.request.body.number);
+    console.log(ctx.request.body)
     const ricesAraay = [];
     ctx.body = [];
     for (let i = 0; i < request; i++) {
@@ -41,6 +42,8 @@ export const riceList = async ctx => {
 
 export const mainList = async ctx => {
     const request = parseInt(ctx.request.body.number);
+    const outList = ctx.request.body.outList;
+    console.log(outList)
     const mainData = []; // 일일 메뉴 list
     const list = []; // 이때까지 나왔던 메뉴 list
     ctx.body = [];
@@ -49,7 +52,7 @@ export const mainList = async ctx => {
             const i = 0;
             while (i < 1) {
                 const mains = await Menu.aggregate([
-                    {$match: { main: true }},
+                    {$match: { main: true, main_ingredient: { $nin: outList} }},
                     {$sample: { size: 1 }}
                 ]);
                 const check2 = list.find(e => {
