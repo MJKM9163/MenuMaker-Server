@@ -43,7 +43,7 @@ export const riceList = async ctx => {
 export const mainList = async ctx => {
     const request = parseInt(ctx.request.body.number);
     const outList = ctx.request.body.outList;
-    console.log(outList)
+    const allOutList = ctx.request.body.allOutList;
     const mainData = []; // 일일 메뉴 list
     const list = []; // 이때까지 나왔던 메뉴 list
     ctx.body = [];
@@ -52,7 +52,7 @@ export const mainList = async ctx => {
             const i = 0;
             while (i < 1) {
                 const mains = await Menu.aggregate([
-                    {$match: { main: true, main_ingredient: { $nin: outList} }},
+                    {$match: { main: true, main_ingredient: { $nin: outList }, ingredient: { $nin: allOutList } }},
                     {$sample: { size: 1 }}
                 ]);
                 const check2 = list.find(e => {
@@ -93,6 +93,8 @@ export const mainList = async ctx => {
 
 export const sideList = async ctx => {
     const request = parseInt(ctx.request.body.number);
+    const outList = ctx.request.body.outList;
+    const allOutList = ctx.request.body.allOutList;
     ctx.body = [];
     for (let i = 0; i < request; i++) {
         const checkCycle = [];
@@ -101,7 +103,12 @@ export const sideList = async ctx => {
         try {
             for (let n = 0; n < 9; n++) {
                 const sides = await Menu.aggregate([
-                    {$match: { main: false, category: { $nin: ["밥", "김치"]}, cook_type: { $nin: ["국", "찌개"]} }},
+                    {$match: {
+                        main: false,
+                        main_ingredient: { $nin: outList },
+                        ingredient: { $nin: allOutList },
+                        category: { $nin: ["밥", "김치"]},
+                        cook_type: { $nin: ["국", "찌개"]} }},
                     {$sample: { size: 1 }}
                 ]);
                 const check = mainFindArray.find(e => {
@@ -151,6 +158,8 @@ export const sideList = async ctx => {
 
 export const soupList = async ctx => {
     const request = parseInt(ctx.request.body.number);
+    const outList = ctx.request.body.outList;
+    const allOutList = ctx.request.body.allOutList;
     const soupsAraay = [];
     ctx.body = [];
     for (let i = 0; i < request; i++) {
@@ -158,7 +167,7 @@ export const soupList = async ctx => {
         try {
             for (let y = 0; y < 3; y++) {
                 const soupsdata = await Menu.aggregate([
-                    {$match: { cook_type: '국' }},
+                    {$match: { cook_type: '국', main_ingredient: { $nin: outList }, ingredient: { $nin: allOutList } }},
                     {$sample: { size: 1 }}
                 ]);
                 if (filterAraay.length == 0) {
