@@ -71,3 +71,15 @@ export const comentUpdate = async ctx => {
         ctx.throw(500, e);
     };
 };
+
+export const comentDelete = async ctx => {
+    const {id} = ctx.params;
+
+    try {
+        await Coment.findByIdAndDelete(id).exec();
+        ctx.status = 204;
+    } catch (e) {
+        ctx.throw(500, e);
+    };
+    console.log("지우기 성공!");
+};
