@@ -5,7 +5,7 @@ export const findMain = async ctx => {
         const findAll = await Menu.aggregate([
             {$group: {
                 '_id': '$main_ingredient',
-                'count': {'$sum': 1}}}
+                }}//'count': {'$sum': 1}
         ])
         ctx.body = findAll;
     } catch (e) {
