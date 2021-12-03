@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import Menu from '../../models/menu';
+import PriceNumber from '../../models/priceNumber';
 
 export const register = async ctx => {
 
@@ -64,6 +65,19 @@ export const register = async ctx => {
     };
 };
 
-export const testtest = () => {
+export const namesave = async ctx => {
+    const { name, number, detailNumber } = ctx.request.body;
 
-}
+    try {
+        const priceSave = new PriceNumber({
+            name,
+            number,
+            detailNumber
+        });
+
+        await priceSave.save();
+        ctx.body = priceSave;
+    } catch (e) {
+        ctx.throw(500, e);
+    };
+};

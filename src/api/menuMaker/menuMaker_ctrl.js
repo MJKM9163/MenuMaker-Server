@@ -2,19 +2,29 @@ import Menu from "../../models/menu";
 
 export const riceList = async ctx => {
     const request = parseInt(ctx.request.body.number);
-    console.log(ctx.request.body)
+    console.log(ctx.request.body.percentObject)
     const ricesAraay = [];
     ctx.body = [];
+
     for (let i = 0; i < request; i++) {
+        const mainCostArray = [];
+        const subCostArray = [];
         try {
             const rices = await Menu.aggregate([
                 {$match: { category: '밥' }},
                 {$sample: { size: 3 }}
             ]);
+            for (let min = 0; min < 3; min++) {
+                mainCostArray.push(rices[min].main_ingredient)
+                subCostArray.push(rices[min].ingredient)
+            }
+            console.log(mainCostArray)
+            console.log(subCostArray)
+            console.log(rices[0].ingredient)
             if (ricesAraay.length == 3) {
                 check1: for (let n = 0; n < 3; n++) {
                     const check1 = rices[n].menuname;
-                    for (let u = 0; u < 3; u ++) {
+                    for (let u = 0; u < 3; u++) {
                         const check2 = ricesAraay[u].menuname;
                         const final = check1 === check2;
                         if (final) {

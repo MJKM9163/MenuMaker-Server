@@ -4,7 +4,7 @@ import menuSave from './menuSave';
 import menuMaker from './menuMaker';
 import setting from './setting';
 import coment from './coment';
-import openAPIs from "./openAPIs/index";
+import openAPIs from "./openAPIs";
 
 const api = new Router();
 

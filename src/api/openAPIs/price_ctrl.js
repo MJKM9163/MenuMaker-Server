@@ -1,22 +1,36 @@
 import axios from "../../../node_modules/axios/index";
-//const converter = require('xml-js');
-// `http://apis.data.go.kr/B552895/openapi/service/OrgPriceExaminService/getExaminPriceList?ServiceKey=${API_Key}&pageNo=1&numOfRows=2&examinDe=20150502&examinCd=6&prdlstCd=224`
-//http://apis.data.go.kr/B552895/LocalGovPriceInfoService/getItemPriceResearchSearch
-export const price = async (ctx) => {
-    const API_Key = process.env.REACT_APP_API_KEY;
-    const text = encodeURIComponent("쌀");
-    const num = encodeURIComponent("02");
+
+const box = [];
+export const price = async ctx => {
+    const { REACT_APP_API_KEY, KEY_ID } = process.env;
+    const { toDay,
+            categoryCode, } = ctx.params;
     console.log(ctx.params)
+    ctx.body = [];
     let response;
     try {
       response = await axios.get(
-        `http://apis.data.go.kr/B552895/openapi/service/OrgPriceExaminService/getExaminPriceList?ServiceKey=${API_Key}&pageNo=1&numOfRows=1&examinDe=20211201&examinCd=6&prdlstCd=111&prdlstNm=${text}&spciesCd=01`
+        `http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList&p_product_cls_code=01&p_regday=${toDay}&p_convert_kg_yn=Y&p_item_category_code=${categoryCode}&p_cert_key=${REACT_APP_API_KEY}&p_cert_id=${KEY_ID}&p_returntype=json`
       )
+
+    if (box.length === 6) {
+      box.length = 0;
+      box.push(response.data);
+        
+    } else if (box.length < 6) {
+      box.push(response.data);
+    }
+  
+    if (box.length === 6) {
+      // ctx.body = box;
+      ctx.body.push(...box)
+      console.log(ctx.body[0].data.item[0])
+      console.log("마무리")
+    }
+    console.log(box.length)
+    
     } catch (e) {
       console.log(e);
     }
-    // const xmlToJson = converter.xml2json(response.data)
-    // ctx.body = xmlToJson;
-    ctx.body = response.data;
-    console.log('Status', response.status);
+
   };
