@@ -1,8 +1,8 @@
 import Router from "koa-router";
-import * as priceCtrl from './price_ctrl';
+import * as openAPI from './openAPI_ctrl';
 
-const openAPI = new Router();
+const openAPIs = new Router();
 
-openAPI.get('/priceAPI/:toDay?/:categoryCode?', priceCtrl.price);
+openAPIs.get('/price', openAPI.price);
 
-export default openAPI;
+export default openAPIs;
