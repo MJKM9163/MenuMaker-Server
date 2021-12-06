@@ -2,10 +2,14 @@ import Menu from "../../models/menu";
 
 export const riceList = async ctx => {
     const request = parseInt(ctx.request.body.number);
+    const { data100, data200, data300, data400, data500, data600 } = ctx.request.body;
+    const { rice, main, submain, soup } = ctx.request.body.percentObject;
     console.log(ctx.request.body.percentObject)
+    console.log(data100.data.item[0])
     const ricesAraay = [];
+    const priceAraay = [];
     ctx.body = [];
-
+    const testBox = [];
     for (let i = 0; i < request; i++) {
         const mainCostArray = [];
         const subCostArray = [];
@@ -41,6 +45,46 @@ export const riceList = async ctx => {
             } else if (ricesAraay.length == 0) {
                 ricesAraay.push(...rices);
                 ctx.body.push(rices)
+                const check100 = data100.data.item.length;
+                for (let a = 0; a < check100; a++) {
+                    testBox.push(data100.data.item[a])
+                }
+                for (let b = 0; b < 3; b++) {
+                    const bodyLength = ctx.body.length - 1;
+                    const mainCheck = ctx.body[bodyLength][b].main_ingredient;
+                    console.log(mainCheck)
+                    const subMainCheck = ctx.body[bodyLength][b].ingredient;
+                    const mainPriceCheck = data100.data.item.filter(item=>{
+                        item.item_name === mainCheck;
+                        console.log(item.item_name == mainCheck)
+                    })
+                    
+
+                    priceAraay.push(mainPriceCheck)
+                    console.log(priceAraay);
+
+                    // const subMainPriceCheck1 = data100.data.item[check100].map((item)=>{
+                    //     item.item_name === subMainCheck
+                    // })
+                    // const subMainPriceCheck2 = data200.data.item[check100].map((item)=>{
+                    //     item.item_name === subMainCheck
+                    // })
+                    // const subMainPriceCheck3 = data300.data.item[check100].map((item)=>{
+                    //     item.item_name === subMainCheck
+                    // })
+                    // const subMainPriceCheck4 = data400.data.item[check100].map((item)=>{
+                    //     item.item_name === subMainCheck
+                    // })
+                    // const subMainPriceCheck5 = data500.data.item[check100].map((item)=>{
+                    //     item.item_name === subMainCheck
+                    // })
+                    // const subMainPriceCheck6 = data600.data.item[check100].map((item)=>{
+                    //     item.item_name === subMainCheck
+                    // })
+                }
+                console.log(data100.data.item[0])
+                //console.log(testBox)
+                //testBox.push(rices)
             }
         } catch (e) {
             ctx.throw(500, e);
