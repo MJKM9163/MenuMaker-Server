@@ -3,16 +3,22 @@ import Menu from "../../models/menu";
 export const riceList = async ctx => {
     const request = parseInt(ctx.request.body.number);
     const { data100, data200, data300, data400, data500, data600 } = ctx.request.body;
-    const { rice, main, submain, soup } = ctx.request.body.percentObject;
+    const { rice } = ctx.request.body.percentObject;
     console.log(ctx.request.body.percentObject)
     console.log(data100.data.item[0])
-    const ricesAraay = [];
-    const priceAraay = [];
-    ctx.body = [];
-    const testBox = [];
+    const ricesArray = [];
+    const priceResponseArray = [];
+    const priceArray = [];
+    const subPriceArray = [];
+    ctx.body = ({
+        rices: [],
+        price: [],
+    })
+
     for (let i = 0; i < request; i++) {
         const mainCostArray = [];
         const subCostArray = [];
+        const ricesPrice = [];
         try {
             const rices = await Menu.aggregate([
                 {$match: { category: '밥' }},
@@ -24,12 +30,12 @@ export const riceList = async ctx => {
             }
             console.log(mainCostArray)
             console.log(subCostArray)
-            console.log(rices[0].ingredient)
-            if (ricesAraay.length == 3) {
+
+            if (ricesArray.length == 3) {
                 check1: for (let n = 0; n < 3; n++) {
                     const check1 = rices[n].menuname;
                     for (let u = 0; u < 3; u++) {
-                        const check2 = ricesAraay[u].menuname;
+                        const check2 = ricesArray[u].menuname;
                         const final = check1 === check2;
                         if (final) {
                             i--;
@@ -39,57 +45,182 @@ export const riceList = async ctx => {
                         }
                     }
                     if (n == 2) {
-                        ricesAraay.length = 0;
+                        ricesArray.length = 0;
                     }
                 }
-            } else if (ricesAraay.length == 0) {
-                ricesAraay.push(...rices);
-                ctx.body.push(rices)
-                const check100 = data100.data.item.length;
-                for (let a = 0; a < check100; a++) {
-                    testBox.push(data100.data.item[a])
-                }
+            } else if (ricesArray.length == 0) {
+                ricesArray.push(...rices);
+                priceResponseArray.push(rices)
+
                 for (let b = 0; b < 3; b++) {
-                    const bodyLength = ctx.body.length - 1;
-                    const mainCheck = ctx.body[bodyLength][b].main_ingredient;
-                    console.log(mainCheck)
-                    const subMainCheck = ctx.body[bodyLength][b].ingredient;
+                    const subGatherArray = [];
+                    const bodyLength = priceResponseArray.length - 1;
+                    const mainCheck = priceResponseArray[bodyLength][b].main_ingredient;
+                    const subMainCheck = priceResponseArray[bodyLength][b].ingredient;
                     const mainPriceCheck = data100.data.item.filter(item=>{
-                        item.item_name === mainCheck;
-                        console.log(item.item_name == mainCheck)
+                        if (item.item_name === mainCheck) {
+                            return true
+                        }
+                        return false
                     })
-                    
+                    priceArray.push(mainPriceCheck);
 
-                    priceAraay.push(mainPriceCheck)
-                    console.log(priceAraay);
+                    const subMainPriceCheck1 = data100.data.item.filter(item=>{
+                        if (item.item_name === subMainCheck) {
+                            return true
+                        }
+                        return false
+                    })
+                    const subMainPriceCheck2 = data200.data.item.filter(item=>{
+                        if (item.item_name === subMainCheck) {
+                            return true
+                        }
+                        return false
+                    })
+                    const subMainPriceCheck3 = data300.data.item.filter(item=>{
+                        if (item.item_name === subMainCheck) {
+                            return true
+                        }
+                        return false
+                    })
+                    const subMainPriceCheck4 = data400.data.item.filter(item=>{
+                        if (item.item_name === subMainCheck) {
+                            return true
+                        }
+                        return false
+                    })
+                    const subMainPriceCheck5 = data500.data.item.filter(item=>{
+                        if (item.item_name === subMainCheck) {
+                            return true
+                        }
+                        return false
+                    })
+                    const subMainPriceCheck6 = data600.data.item.filter(item=>{
+                        if (item.item_name === subMainCheck) {
+                            return true
+                        };
+                        return false
+                    })
+                    if (subMainPriceCheck1 !== []) {
+                        subGatherArray.push(...subMainPriceCheck1);
+                    };
+                    if (subMainPriceCheck2 !== []) {
+                        subGatherArray.push(...subMainPriceCheck2);
+                    };
+                    if (subMainPriceCheck3 !== []) {
+                        subGatherArray.push(...subMainPriceCheck3);
+                    };
+                    if (subMainPriceCheck4 !== []) {
+                        subGatherArray.push(...subMainPriceCheck4);
+                    };
+                    if (subMainPriceCheck5 !== []) {
+                        subGatherArray.push(...subMainPriceCheck5);
+                    };
+                    if (subMainPriceCheck6 !== []) {
+                        subGatherArray.push(...subMainPriceCheck6);
+                    };
+                    subPriceArray.push(subGatherArray);
+                };
 
-                    // const subMainPriceCheck1 = data100.data.item[check100].map((item)=>{
-                    //     item.item_name === subMainCheck
-                    // })
-                    // const subMainPriceCheck2 = data200.data.item[check100].map((item)=>{
-                    //     item.item_name === subMainCheck
-                    // })
-                    // const subMainPriceCheck3 = data300.data.item[check100].map((item)=>{
-                    //     item.item_name === subMainCheck
-                    // })
-                    // const subMainPriceCheck4 = data400.data.item[check100].map((item)=>{
-                    //     item.item_name === subMainCheck
-                    // })
-                    // const subMainPriceCheck5 = data500.data.item[check100].map((item)=>{
-                    //     item.item_name === subMainCheck
-                    // })
-                    // const subMainPriceCheck6 = data600.data.item[check100].map((item)=>{
-                    //     item.item_name === subMainCheck
-                    // })
+                priceBreak: for (let c = 0; c < 3; c++) {
+                    const dozenPriceValue = priceArray[c].length;
+                    for (let d = 0; d < dozenPriceValue; d++) {
+
+                        let priceValue = priceArray[c][d].dpr1.replace(/,/,"") // 당일 가격
+                        if (priceValue === "-") {
+                            priceValue = priceArray[c][d].dpr2.replace(/,/,"") // 1일전 가격
+                            if (priceValue === "-") {
+                                priceValue = priceArray[c][d].dpr3.replace(/,/,"") // 1주일전 가격
+                                if (priceValue === "-") {
+                                    priceValue = priceArray[c][d].dpr5.replace(/,/,"") // 1개월전 가격
+                                    if (priceValue === "-") {
+                                        priceValue = priceArray[c][d].dpr6.replace(/,/,"") // 1년전 가격
+                                    }
+                                }
+                            }
+                        }
+                        let priceResult
+                        let onePrice
+                        let subPriceResult
+                        let subOnePrice
+                        try {
+                            const subMainCountType = subPriceArray[c][d].unit;
+                            let subPriceValue = subPriceArray[c][d].dpr1.replace(/,/,"")
+                            if (subPriceValue === "-") {
+                                subPriceValue = subPriceArray[c][d].dpr2.replace(/,/,"") // 1일전 가격
+                                if (subPriceValue === "-") {
+                                    subPriceValue = subPriceArray[c][d].dpr3.replace(/,/,"") // 1주일전 가격
+                                    if (subPriceValue === "-") {
+                                        subPriceValue = subPriceArray[c][d].dpr5.replace(/,/,"") // 1개월전 가격
+                                        if (subPriceValue === "-") {
+                                            subPriceValue = subPriceArray[c][d].dpr6.replace(/,/,"") // 1년전 가격
+                                        }
+                                    }
+                                }
+                            }
+                            if (subMainCountType.includes('kg')) {
+                                subPriceResult = 90 / 1000;
+                                subOnePrice = Number(subPriceValue) * subPriceResult;
+                            } else if (subMainCountType.includes('마리')) {
+                                subPriceResult = 1 / 4;
+                                subOnePrice = Number(subPriceValue) * subPriceResult;
+                            } else if (subMainCountType.includes('개')) {
+                                subPriceResult = 1 / 2;
+                                subOnePrice = Number(subPriceValue) * subPriceResult;
+                            }
+                        } catch (e) {
+                            console.log("서브재료의 가격이 없습니다.")
+                        }
+                        const mainCountType = priceArray[c][d].unit;
+                        if (mainCountType.includes('kg')) {
+                            priceResult = 90 / 1000;
+                            onePrice = Number(priceValue) * priceResult;
+                        } else if (mainCountType.includes('마리')) {
+                            priceResult = 1 / 4;
+                            onePrice = Number(priceValue) * priceResult;
+                        } else if (mainCountType.includes('개')) {
+                            priceResult = 1 / 2;
+                            onePrice = Number(priceValue) * priceResult;
+                        }
+
+                        let finalPriceResult
+                        console.log(subOnePrice)
+                        if (subOnePrice >= 1) {
+                            console.log("서브메뉴 true")
+                            finalPriceResult = onePrice + subOnePrice;
+                        } else if (subOnePrice !== true) {
+                            console.log("서브메뉴 false")
+                            finalPriceResult = onePrice
+                        };
+                        // console.log(onePrice)
+                        // console.log(subOnePrice)
+                        // console.log(finalPriceResult)
+
+                        if (finalPriceResult <= rice && c === 2) {
+                            ricesPrice.push(finalPriceResult)
+                            ctx.body.rices.push(rices)
+                            ctx.body.price.push(ricesPrice)
+                            //console.log(ctx.body)
+                        } else if (finalPriceResult <= rice) {
+                            ricesPrice.push(finalPriceResult)
+                        } else if (finalPriceResult === undefined) {
+                            ricesPrice.push(0)
+                        } else if (finalPriceResult > rice) {
+                            console.log("가격이 넘어가서 재실행")
+                            ricesArray.length = 0;
+                            i--;
+                            break priceBreak;
+                        }
+                    }
                 }
-                console.log(data100.data.item[0])
-                //console.log(testBox)
-                //testBox.push(rices)
-            }
+                priceResponseArray.length = 0;
+                priceArray.length = 0;
+                subPriceArray.length = 0;
+            };
         } catch (e) {
             ctx.throw(500, e);
-        }
-    }
+        };
+    };
     console.log("rice 끝");
 };
 
