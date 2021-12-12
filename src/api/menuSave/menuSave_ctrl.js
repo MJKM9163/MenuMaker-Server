@@ -9,7 +9,9 @@ export const register = async ctx => {
         main: Joi.boolean().required(),
         description: Joi.string().required(),
         main_ingredient: Joi.string().required(),
+        main_ingredient_weight: Joi.number().required(),
         ingredientArray: Joi.array().items(Joi.string()).unique().required(),
+        ingredientWeightArray: Joi.array().items(Joi.number()).required(),
         category: Joi.string().required(),
         cook_type: Joi.required(),
         sauce_base: Joi.required(),
@@ -24,13 +26,15 @@ export const register = async ctx => {
         ctx.body = result.error;
         return;
     }
-    console.log("request", ctx.request.body);
+    console.log("메뉴 저장 중.....", ctx.request.body);
 
     const { menuname,
             main,
             description,
             main_ingredient,
+            main_ingredient_weight,
             ingredientArray,
+            ingredientWeightArray,
             category,
             cook_type,
             sauce_base,
@@ -48,7 +52,9 @@ export const register = async ctx => {
             main,
             description,
             main_ingredient,
+            main_ingredient_weight,
             ingredient: ingredientArray,
+            ingredient_weight: ingredientWeightArray,
             category,
             cook_type,
             sauce_base,
