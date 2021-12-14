@@ -4,7 +4,7 @@ export const riceList = async ctx => {
     const request = parseInt(ctx.request.body.number);
     const { data100, data200, data300, data400, data500, data600 } = ctx.request.body;
     const { rice } = ctx.request.body.percentObject;
-    const dataArray =[data100, data200, data300, data400, data500, data600]
+    const dataArray = [data100, data200, data300, data400, data500, data600]
     const ricesArray = [];
     const priceResponseArray = [];
     const priceArray = [];
@@ -353,7 +353,7 @@ export const riceList = async ctx => {
 
 export const mainList = async ctx => {
     const { data100, data200, data300, data400, data500, data600 } = ctx.request.body;
-    const dataArray =[data100, data200, data300, data400, data500, data600]
+    const dataArray = [data100, data200, data300, data400, data500, data600]
     const { main } = ctx.request.body.percentObject;
     const request = parseInt(ctx.request.body.number);
     const outList = ctx.request.body.outList;
@@ -417,13 +417,12 @@ export const mainList = async ctx => {
                                 })
                                 if (mainPriceCheck.length !== 0) {
                                     gatherArray.push(...mainPriceCheck);
-                                } else if (gatherArray.length === 0 && api === 5) {
-                                    gatherArray.push([]);
-                                }
-                                if (api === 5) {
-                                    mainPriceArray.push(gatherArray);
-                                }
+                                } 
                             }
+                            if (mainPriceCheck.length === 0) {
+                                mainPriceArray.push([]);
+                            }
+                            mainPriceArray.push(gatherArray);
 
                             const subAddArray = [];
                             for (let i = 0; i < subMainLength; i++) {
@@ -455,15 +454,16 @@ export const mainList = async ctx => {
                                 subPriceArray.push([[]]);
                             };
                         };
-                        // ------------------------------공사 중..... -------------------------------
                         for (let c = 0; c < 6; c++) {
                             let mainsPrice = [];
                             let subResultArray = [];
                             const dozenPriceValue = mainPriceArray[c].length;
                             const dozenSubPriceValue = subPriceArray[c].length;
-
-                            for (let single = 0; single < dozenPriceValue; single++) {
-                                let priceValue = mainPriceArray[c][single].dpr1.replace(/,/,"") // 당일 가격
+                            let priceValue;
+                            if (dozenPriceValue === 0) {
+                                subResultArray.push(0)
+                            } for (let single = 0; single < dozenPriceValue; single++) {
+                                priceValue = mainPriceArray[c][single].dpr1.replace(/,/,"") // 당일 가격
                                 if (priceValue === "-") {
                                     priceValue = mainPriceArray[c][single].dpr2.replace(/,/,"") // 1일전 가격
                                     if (priceValue === "-") {
@@ -485,52 +485,58 @@ export const mainList = async ctx => {
 
                             let priceResult
                             let onePrice
-                            const mainCountType = mainPriceArray[c][0].unit;
-                            const me_W = priceMainResponseArray[bodyLength][c].main_ingredient_weight;
-                            const number_regex = mainCountType.replace(/[^0-9]/g, "");
-                            const type_regex = mainCountType.replace(/[0-9]/g, "");
-                            if (type_regex === 'kg') {
-                                priceResult = Number(me_W) / (1000 * Number(number_regex));
-                                onePrice = Number(result) * priceResult;
-                            } else if (type_regex === 'g') {
-                                priceResult = Number(me_W) / (1 * Number(number_regex));
-                                onePrice = Number(result) * priceResult;
-                            } else if (type_regex === '마리') {
-                                priceResult = Number(me_W) / (3 * Number(number_regex));
-                                onePrice = Number(result) * priceResult;
-                            } else if (type_regex === '개') {
-                                priceResult = Number(me_W) / (2 * Number(number_regex));
-                                onePrice = Number(result) * priceResult;
-                            } else if (type_regex === '포기') {
-                                priceResult = Number(me_W) / (1 * Number(number_regex));
-                                onePrice = Number(result) * priceResult;
+                            let mainCountType
+
+                            if (mainPriceArray[c].length === 0) {
+                                onePrice = 0;
+                            } else if (mainPriceArray[c].length > 0) {
+                                mainCountType = mainPriceArray[c][0].unit;
+                                const me_W = priceMainResponseArray[bodyLength][c].main_ingredient_weight;
+                                const number_regex = mainCountType.replace(/[^0-9]/g, "");
+                                const type_regex = mainCountType.replace(/[0-9]/g, "");
+                                if (type_regex === 'kg') {
+                                    priceResult = Number(me_W) / (1000 * Number(number_regex));
+                                    onePrice = Number(result) * priceResult;
+                                } else if (type_regex === 'g') {
+                                    priceResult = Number(me_W) / (1 * Number(number_regex));
+                                    onePrice = Number(result) * priceResult;
+                                } else if (type_regex === '마리') {
+                                    priceResult = Number(me_W) / (3 * Number(number_regex));
+                                    onePrice = Number(result) * priceResult;
+                                } else if (type_regex === '개') {
+                                    priceResult = Number(me_W) / (2 * Number(number_regex));
+                                    onePrice = Number(result) * priceResult;
+                                } else if (type_regex === '포기') {
+                                    priceResult = Number(me_W) / (1 * Number(number_regex));
+                                    onePrice = Number(result) * priceResult;
+                                }
                             }
 
                             for (let single = 0; single < dozenSubPriceValue; single++) {
                                 const dozenSubPriceValue_In = subPriceArray[c][single].length;
                                 let subMainsPrice = [];
-                                let priceValue;
+                                let priceSubValue;
                                 if (dozenSubPriceValue_In === 0) {
                                     subResultArray.push(0)
                                 } else if (dozenSubPriceValue_In > 0) {
                                     for (let singleIn = 0; singleIn < dozenSubPriceValue_In; singleIn++) {
-                                        priceValue = subPriceArray[c][single][singleIn].dpr1.replace(/,/,"") // 당일 가격
-                                        if (priceValue === "-") {
-                                            priceValue = subPriceArray[c][single][singleIn].dpr2.replace(/,/,"") // 1일전 가격
-                                            if (priceValue === "-") {
-                                                priceValue = subPriceArray[c][single][singleIn].dpr3.replace(/,/,"") // 1주일전 가격
-                                                if (priceValue === "-") {
-                                                    priceValue = subPriceArray[c][single][singleIn].dpr5.replace(/,/,"") // 1개월전 가격
-                                                    if (priceValue === "-") {
-                                                        priceValue = subPriceArray[c][single][singleIn].dpr6.replace(/,/,"") // 1년전 가격
-                                                        if (priceValue === "-") {
-                                                            priceValue = '0'; // 가격 없음
+                                        priceSubValue = subPriceArray[c][single][singleIn].dpr1.replace(/,/,"") // 당일 가격
+                                        if (priceSubValue === "-") {
+                                            priceSubValue = subPriceArray[c][single][singleIn].dpr2.replace(/,/,"") // 1일전 가격
+                                            if (priceSubValue === "-") {
+                                                priceSubValue = subPriceArray[c][single][singleIn].dpr3.replace(/,/,"") // 1주일전 가격
+                                                if (priceSubValue === "-") {
+                                                    priceSubValue = subPriceArray[c][single][singleIn].dpr5.replace(/,/,"") // 1개월전 가격
+                                                    if (priceSubValue === "-") {
+                                                        priceSubValue = subPriceArray[c][single][singleIn].dpr6.replace(/,/,"") // 1년전 가격
+                                                        if (priceSubValue === "-") {
+                                                            priceSubValue = '0'; // 가격 없음
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                        subMainsPrice.push(priceValue);
+                                        subMainsPrice.push(priceSubValue);
                                     }
                                     const resulting = Math.min.apply(null, subMainsPrice);
 
@@ -566,14 +572,13 @@ export const mainList = async ctx => {
                                 finalAddArray.push(finalAdd);
                             } else if (finalAdd > main) {
                                 e--;
-                                mainData.length = 0; 
-                                list.splice(-6, 6); 
+                                mainData.length = 0;
+                                list.splice(-6, 6);
                                 break priceBreak
                             }
                         }
                         ctx.body.mains.push(mainSlice)
                         ctx.body.price.push(finalAddArray)
-                        // ------------------------------공사 중..... -------------------------------
                         break;
                     }
                 }
@@ -582,13 +587,12 @@ export const mainList = async ctx => {
             ctx.throw(500, e);
         };
     }
-    console.log(ctx.body.mains);
-    console.log(ctx.body.price);
     console.log("main 끝");
 };
 
 export const sideList = async ctx => {
     const { data100, data200, data300, data400, data500, data600 } = ctx.request.body;
+    const dataArray = [data100, data200, data300, data400, data500, data600]
     const { submain } = ctx.request.body.percentObject;
     const request = parseInt(ctx.request.body.number);
     const outList = ctx.request.body.outList;
@@ -608,7 +612,6 @@ export const sideList = async ctx => {
             reStart: for (let n = 0; n < 9; n++) {
                 let priceCheckArray = [];
                 let subPriceCheckArray = [];
-                let sidesPriceArray = [];
                 let subSidesPriceArray = [];
                 const sides = await Menu.aggregate([
                     {$match: {
@@ -619,70 +622,30 @@ export const sideList = async ctx => {
                         cook_type: { $nin: ["국", "찌개"]} }},
                     {$sample: { size: 1 }}
                 ]);
+                const sideCheck = sides[0].main_ingredient;
+                let sidePriceCheck;
+                //let gatherArray = [];
+                for (let api = 0; api < 6; api++) {
+                    sidePriceCheck = dataArray[api].data.item.filter(item=>{
+                        if (item.item_name === sideCheck) {
+                            return true
+                        }
+                        return false
+                    })
+                    if (sidePriceCheck.length !== 0) {
+                        priceCheckArray.push(...sidePriceCheck);
+                    } 
+                }
 
-                const price100Check = data100.data.item.filter((item) => {
-                    if (item.item_name === sides[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price200Check = data200.data.item.filter((item) => {
-                    if (item.item_name === sides[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price300Check = data300.data.item.filter((item) => {
-                    if (item.item_name === sides[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price400Check = data400.data.item.filter((item) => {
-                    if (item.item_name === sides[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price500Check = data500.data.item.filter((item) => {
-                    if (item.item_name === sides[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price600Check = data600.data.item.filter((item) => {
-                    if (item.item_name === sides[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-
-                if (price100Check !== []) {
-                    priceCheckArray.push(...price100Check);
-                };
-                if (price200Check !== []) {
-                    priceCheckArray.push(...price200Check);
-                };
-                if (price300Check !== []) {
-                    priceCheckArray.push(...price300Check);
-                };
-                if (price400Check !== []) {
-                    priceCheckArray.push(...price400Check);
-                };
-                if (price500Check !== []) {
-                    priceCheckArray.push(...price500Check);
-                };
-                if (price600Check !== []) {
-                    priceCheckArray.push(...price600Check);
-                };
-                
                 let sidePriceValue;
+                let priceResult
+                let onePrice
+                let sideCountType
                 if (priceCheckArray.length === 0) {
-                    //console.log("메뉴 정보 없음")
                     sidePriceValue = 0;
-                    sidesPriceArray.push(0);
-                    sidesPriceFinalArray.push(sidesPriceArray);
+                    sidesPriceFinalArray.push(0);
                 } else if (priceCheckArray.length > 0) {
+                    let sidesPrice = [];
                     for (let a = 0; a < priceCheckArray.length; a++) {
                         sidePriceValue = priceCheckArray[a].dpr1.replace(/,/,"")
                         if (priceCheckArray[a].dpr1 === "-") {
@@ -697,188 +660,140 @@ export const sideList = async ctx => {
                                 }
                             }
                         }
-                        let priceResult
-                        let onePrice
-                        const sideCountType = priceCheckArray[a].unit;
-                            if (sideCountType.includes('kg')) {
-                                priceResult = 90 / 1000;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('g')) {
-                                priceResult = 90 / 1000;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('장')) {
-                                priceResult = 1 / 2;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('마리')) {
-                                priceResult = 1 / 4;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('2마리')) {
-                                priceResult = 1 / 8;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('5마리')) {
-                                priceResult = 1 / 20;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('개')) {
-                                priceResult = 1 / 2;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            } else if (sideCountType.includes('리터')) {
-                                priceResult = 90 / 1000;
-                                onePrice = Number(sidePriceValue) * priceResult;
-                            }
-                            sidesPriceArray.push(onePrice);
+                        sidesPrice.push(sidePriceValue)
                     }
-                    let lowPrice = sidesPriceArray.reduce((p, c) => p + c, 0) / sidesPriceArray.length;
+                    const resulting = Math.min.apply(null, sidesPrice);
 
-                    if (lowPrice <= submain) {
-                        //console.log("가격 안넘어감")
-                        let array = [];
-                        array.push(lowPrice)
-                        sidesPriceFinalArray.push(array);
-                    } else if (lowPrice > submain) {
-                        //console.log("== 가격 넘어가서 재실행 ==")
-                        i--;
-                        break reStart;
+                    sideCountType = priceCheckArray[0].unit;
+                    const me_W = sides[0].main_ingredient_weight;
+                    const number_regex = sideCountType.replace(/[^0-9]/g, "");
+                    const type_regex = sideCountType.replace(/[0-9]/g, "");
+
+                    if (type_regex === 'kg') {
+                        priceResult = Number(me_W) / (1000 * Number(number_regex));
+                        onePrice = Number(resulting) * priceResult;
+                    } else if (type_regex === 'g') {
+                        priceResult = Number(me_W) / (1 * Number(number_regex));
+                        onePrice = Number(resulting) * priceResult;
+                    } else if (type_regex === '마리') {
+                        priceResult = Number(me_W) / (3 * Number(number_regex));
+                        onePrice = Number(resulting) * priceResult;
+                    } else if (type_regex === '개') {
+                        priceResult = Number(me_W) / (2 * Number(number_regex));
+                        onePrice = Number(resulting) * priceResult;
+                    } else if (type_regex === '포기') {
+                        priceResult = Number(me_W) / (1 * Number(number_regex));
+                        onePrice = Number(resulting) * priceResult;
+                    } else if (type_regex === '리터') {
+                        priceResult = Number(me_W) / (1000 * Number(number_regex));
+                        onePrice = Number(resulting) * priceResult;
                     }
+                    sidesPriceFinalArray.push(onePrice);
                 }
-                if (sides[0].ingredient === true) {
+                if (sides[0].ingredient.length > 0) {
+                    const subMainLength = sides[0].ingredient.length;
+                    const subSideCheck = sides[0].main_ingredient;
+                    let subGatherArray = [];
 
-                    const subPrice100Check = data100.data.item.filter((item) => {
-                        if (item.item_name === sides[0].ingredient) {
-                            return true
+                    const subAddArray = [];
+                    for (let i = 0; i < subMainLength; i++) {
+                        for (let api = 0; api < 6; api++) {
+                            let subSidePriceCheck = dataArray[api].data.item.filter(item=>{
+                                if (item.item_name === subSideCheck) {
+                                    return true
+                                }
+                                return false
+                            })
+                            if (subSidePriceCheck.length !== 0) {
+                                subGatherArray.push(...subSidePriceCheck);
+                            }
                         }
-                        return false
-                    })
-                    const subPrice200Check = data200.data.item.filter((item) => {
-                        if (item.item_name === sides[0].ingredient) {
-                            return true
+
+                        if (subMainLength === 1) {
+                            subPriceCheckArray.push(subGatherArray);
+                        } else if (subMainLength > 1) {
+                            if (i < subMainLength - 1) {
+                                subAddArray.push(...subGatherArray)
+                            } else if (i === subMainLength - 1) {
+                                subAddArray.push(...subGatherArray)
+                                subPriceCheckArray.push(subAddArray);
+                            }
                         }
-                        return false
-                    })
-                    const subPrice300Check = data300.data.item.filter((item) => {
-                        if (item.item_name === sides[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice400Check = data400.data.item.filter((item) => {
-                        if (item.item_name === sides[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice500Check = data500.data.item.filter((item) => {
-                        if (item.item_name === sides[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice600Check = data600.data.item.filter((item) => {
-                        if (item.item_name === sides[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-    
-                    if (subPrice100Check !== []) {
-                        subPriceCheckArray.push(...subPrice100Check);
-                    };
-                    if (subPrice200Check !== []) {
-                        subPriceCheckArray.push(...subPrice200Check);
-                    };
-                    if (subPrice300Check !== []) {
-                        subPriceCheckArray.push(...subPrice300Check);
-                    };
-                    if (subPrice400Check !== []) {
-                        subPriceCheckArray.push(...subPrice400Check);
-                    };
-                    if (subPrice500Check !== []) {
-                        subPriceCheckArray.push(...subPrice500Check);
-                    };
-                    if (subPrice600Check !== []) {
-                        subPriceCheckArray.push(...subPrice600Check);
-                    };
+                    }
 
                     let sideSubPriceValue;
                     if (subPriceCheckArray.length === 0) {
-                        //console.log("메뉴 정보 없음")
-                        sideSubPriceValue = 0;
-                        subSidesPriceArray.push(0);
-                        subSidesPriceFinalArray.push(subSidesPriceArray);
+                        subSidesPriceFinalArray.push([0]);
                     } else if (subPriceCheckArray.length > 0) {
+                        let subSidesPrice = []
                         for (let a = 0; a < subPriceCheckArray.length; a++) {
-                            sideSubPriceValue = subPriceCheckArray[a].dpr1.replace(/,/,"")
-                            if (subPriceCheckArray[a].dpr1 === "-") {
-                                sideSubPriceValue = subPriceCheckArray[a].dpr2.replace(/,/,"")
-                                if (subPriceCheckArray[a].dpr2 === "-") {
-                                    sideSubPriceValue = subPriceCheckArray[a].dpr3.replace(/,/,"")
-                                    if (subPriceCheckArray[a].dpr3 === "-") {
-                                        sideSubPriceValue = subPriceCheckArray[a].dpr6.replace(/,/,"")
-                                        if (subPriceCheckArray[a].dpr6 === "-") {
-                                            sideSubPriceValue = 0;
+                            for (let b = 0; b < subPriceCheckArray[a].length; b++) {
+
+                                sideSubPriceValue = subPriceCheckArray[a][b].dpr1.replace(/,/,"")
+                                if (subPriceCheckArray[a][b].dpr1 === "-") {
+                                    sideSubPriceValue = subPriceCheckArray[a][b].dpr2.replace(/,/,"")
+                                    if (subPriceCheckArray[a][b].dpr2 === "-") {
+                                        sideSubPriceValue = subPriceCheckArray[a][b].dpr3.replace(/,/,"")
+                                        if (subPriceCheckArray[a][b].dpr3 === "-") {
+                                            sideSubPriceValue = subPriceCheckArray[a][b].dpr6.replace(/,/,"")
+                                            if (subPriceCheckArray[a][b].dpr6 === "-") {
+                                                sideSubPriceValue = 0;
+                                            }
                                         }
                                     }
                                 }
+                                subSidesPrice.push(sideSubPriceValue)
                             }
-                            
-                        let subPriceResult
-                        let subOnePrice
-                        const subSideCountType = subPriceCheckArray[a].unit;
-                            if (subSideCountType.includes('kg')) {
-                                subPriceResult = 90 / 1000;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('g')) {
-                                subPriceResult = 90 / 1000;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('장')) {
-                                subPriceResult = 1 / 2;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('마리')) {
-                                subPriceResult = 1 / 4;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('2마리')) {
-                                subPriceResult = 1 / 8;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('5마리')) {
-                                subPriceResult = 1 / 20;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('개')) {
-                                subPriceResult = 1 / 2;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('리터')) {
-                                subPriceResult = 90 / 1000;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
+                            const subResulting = Math.min.apply(null, subSidesPrice);
+
+                            let subOnePrice
+                            if (subPriceCheckArray[a].length === 0) {
+                                subOnePrice = 0;
+                                subSidesPriceArray.push(subOnePrice);
+                            } else if (subPriceCheckArray[a].length > 0) {
+                                const subSideCountType = subPriceCheckArray[a][0].unit;
+                                const in_W = sides[0].ingredient_weight[a];
+                                const number_regex = subSideCountType.replace(/[^0-9]/g, "");
+                                const type_regex = subSideCountType.replace(/[0-9]/g, "");
+                                if (type_regex === 'kg') {
+                                    priceResult = Number(in_W) / (1000 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * priceResult;
+                                } else if (type_regex === 'g') {
+                                    priceResult = Number(in_W) / (1 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * priceResult;
+                                } else if (type_regex === '마리') {
+                                    priceResult = Number(in_W) / (3 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * priceResult;
+                                } else if (type_regex === '개') {
+                                    priceResult = Number(in_W) / (2 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * priceResult;
+                                } else if (type_regex === '포기') {
+                                    priceResult = Number(in_W) / (1 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * priceResult;
+                                } else if (type_regex === '리터') {
+                                    priceResult = Number(in_W) / (1000 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * priceResult;
+                                }
+                                subSidesPriceArray.push(subOnePrice);
                             }
-                            subSidesPriceArray.push(subOnePrice);
                         }
-
-                        let lowSubPrice = subSidesPriceArray.reduce((p, c) => p + c, 0) / subSidesPriceArray.length;
-
-                        if (lowSubPrice <= submain) {
-                            //console.log("서브_가격 안넘어감")
-                            let array = [];
-                            array.push(lowSubPrice)
-                            subSidesPriceFinalArray.push(array);
-                        } else if (lowSubPrice > submain) {
-                            //console.log("== 서브_가격 넘어가서 재실행 ==")
-                            i--;
-                            break reStart;
-                        }
+                        const subReduce = subSidesPriceArray.reduce((a,b) => (a+b));
+                        subSidesPriceFinalArray.push(subReduce);                      
                     }
+                } else if (sides[0].ingredient.length === 0) {
+                    subSidesPriceFinalArray.push(0);
                 }
 
                 let finalPriceResult
                 if (subSidesPriceFinalArray[n] >= 1) {
                     finalPriceResult = sidesPriceFinalArray[n] + subSidesPriceFinalArray[n];
-                } else if (subSidesPriceFinalArray[n] !== true) {
+                } else if (subSidesPriceFinalArray[n] === 0) {
                     finalPriceResult = sidesPriceFinalArray[n]
                 };
-
                 if (finalPriceResult <= submain) {
-                    //console.log("합친_가격 안넘어감")
-                    finalArray.push(...finalPriceResult);
-
+                    finalArray.push(finalPriceResult);
                 } else if (finalPriceResult > submain) {
-                    //console.log("== 합친_가격 넘어가서 재실행 ==")
+                    console.log('새로 시작 가격 넘어감')
                     i--;
                     break reStart;
                 }
@@ -933,350 +848,235 @@ export const sideList = async ctx => {
 
 export const soupList = async ctx => {
     const { data100, data200, data300, data400, data500, data600 } = ctx.request.body;
+    const dataArray = [data100, data200, data300, data400, data500, data600]
     const { soup } = ctx.request.body.percentObject;
     const request = parseInt(ctx.request.body.number);
     const outList = ctx.request.body.outList;
     const allOutList = ctx.request.body.allOutList;
-    const soupsAraay = [];
+    const soupsArray = [];
     ctx.body = ({
         soups: [],
         price: [],
     })
     for (let i = 0; i < request; i++) {
-        const filterAraay = [];
+        const filterArray = [];
         let finalArray = [];
-        let soupPriceFinalArray = [];
-        let subSoupPriceFinalArray = [];
+
         try {
             reStart: for (let y = 0; y < 3; y++) {
+                console.log('시작y ==> ',y)
+                console.log('누적 랭스 ==> ', filterArray.length)
+                let control = true;
+                let soupPriceFinalArray = [];
+                let subSoupPriceFinalArray = [];
                 let priceCheckArray = [];
                 let subPriceCheckArray = [];
-                let soupPriceArray = [];
                 let subSoupPriceArray = [];
                 const soupsdata = await Menu.aggregate([
                     {$match: { cook_type: '국', main_ingredient: { $nin: outList }, ingredient: { $nin: allOutList } }},
                     {$sample: { size: 1 }}
                 ]);
-
-
-// price 코드 공사중 ....---------------------------------------------------------------------------------
-
-                const price100Check = data100.data.item.filter((item) => {
-                    if (item.item_name === soupsdata[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price200Check = data200.data.item.filter((item) => {
-                    if (item.item_name === soupsdata[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price300Check = data300.data.item.filter((item) => {
-                    if (item.item_name === soupsdata[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price400Check = data400.data.item.filter((item) => {
-                    if (item.item_name === soupsdata[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price500Check = data500.data.item.filter((item) => {
-                    if (item.item_name === soupsdata[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-                const price600Check = data600.data.item.filter((item) => {
-                    if (item.item_name === soupsdata[0].main_ingredient) {
-                        return true
-                    }
-                    return false
-                })
-
-                if (price100Check !== []) {
-                    priceCheckArray.push(...price100Check);
-                };
-                if (price200Check !== []) {
-                    priceCheckArray.push(...price200Check);
-                };
-                if (price300Check !== []) {
-                    priceCheckArray.push(...price300Check);
-                };
-                if (price400Check !== []) {
-                    priceCheckArray.push(...price400Check);
-                };
-                if (price500Check !== []) {
-                    priceCheckArray.push(...price500Check);
-                };
-                if (price600Check !== []) {
-                    priceCheckArray.push(...price600Check);
-                };
-
-                let sopePriceValue;
-                //console.log(priceCheckArray)
-                if (priceCheckArray.length === 0) {
-                    sopePriceValue = 0;
-                    soupPriceArray.push(0);
-                    soupPriceFinalArray.push(soupPriceArray);
-                } else if (priceCheckArray.length > 0) {
-                    for (let a = 0; a < priceCheckArray.length; a++) {
-                        sopePriceValue = priceCheckArray[a].dpr1.replace(/,/,"")
-                        if (priceCheckArray[a].dpr1 === "-") {
-                            sopePriceValue = priceCheckArray[a].dpr2.replace(/,/,"")
-                            if (priceCheckArray[a].dpr2 === "-") {
-                                sopePriceValue = priceCheckArray[a].dpr3.replace(/,/,"")
-                                if (priceCheckArray[a].dpr3 === "-") {
-                                    sopePriceValue = priceCheckArray[a].dpr6.replace(/,/,"")
-                                    if (priceCheckArray[a].dpr6 === "-") {
-                                        sopePriceValue = 0;
-                                    }
-                                }
-                            }
+                let dayLength;
+                if (filterArray.length === 0) {
+                    filterArray.push(...soupsdata)
+                    dayLength = filterArray.length;
+                } else if (filterArray.length > 0) {
+                    dayLength = filterArray.length 
+                    let check_menu;
+                    stop_for: for (let t = 0; t < dayLength; t++) {
+                        check_menu = filterArray[t].menuname === soupsdata[0].menuname;
+                        if (check_menu === true) {
+                            control = false;
+                            y--;
+                            break stop_for;
+                        } else if (check_menu !== true && t === dayLength -1) {
+                            console.log('통과')
+                            filterArray.push(...soupsdata)
                         }
-                        let priceResult
-                        let onePrice
-                        const sideCountType = priceCheckArray[a].unit;
-                            if (sideCountType.includes('kg')) {
-                                priceResult = 90 / 1000;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('g')) {
-                                priceResult = 90 / 1000;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('장')) {
-                                priceResult = 1 / 2;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('마리')) {
-                                priceResult = 1 / 4;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('2마리')) {
-                                priceResult = 1 / 8;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('5마리')) {
-                                priceResult = 1 / 20;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('개')) {
-                                priceResult = 1 / 2;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            } else if (sideCountType.includes('리터')) {
-                                priceResult = 90 / 1000;
-                                onePrice = Number(sopePriceValue) * priceResult;
-                            }
-                            soupPriceArray.push(onePrice);
-                    }
-                    let lowPrice = soupPriceArray.reduce((p, c) => p + c, 0) / soupPriceArray.length;
-                    //console.log("lowPrice ==> ",lowPrice)
-                    if (lowPrice <= soup) {
-                        //console.log("국_가격 안넘어감")
-                        let array = [];
-                        array.push(lowPrice)
-                        soupPriceFinalArray.push(array);
-                    } else if (lowPrice > soup) {
-                        //console.log("== 국_가격 넘어가서 재실행 ==")
-                        i--;
-                        break reStart;
                     }
                 }
-                if (soupsdata[0].ingredient === true) {
+                console.log(dayLength)
+                if (control === true) {
 
-                    const subPrice100Check = data100.data.item.filter((item) => {
-                        if (item.item_name === soupsdata[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice200Check = data200.data.item.filter((item) => {
-                        if (item.item_name === soupsdata[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice300Check = data300.data.item.filter((item) => {
-                        if (item.item_name === soupsdata[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice400Check = data400.data.item.filter((item) => {
-                        if (item.item_name === soupsdata[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice500Check = data500.data.item.filter((item) => {
-                        if (item.item_name === soupsdata[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-                    const subPrice600Check = data600.data.item.filter((item) => {
-                        if (item.item_name === soupsdata[0].ingredient) {
-                            return true
-                        }
-                        return false
-                    })
-
-                    if (subPrice100Check !== []) {
-                        subPriceCheckArray.push(...subPrice100Check);
-                    };
-                    if (subPrice200Check !== []) {
-                        subPriceCheckArray.push(...subPrice200Check);
-                    };
-                    if (subPrice300Check !== []) {
-                        subPriceCheckArray.push(...subPrice300Check);
-                    };
-                    if (subPrice400Check !== []) {
-                        subPriceCheckArray.push(...subPrice400Check);
-                    };
-                    if (subPrice500Check !== []) {
-                        subPriceCheckArray.push(...subPrice500Check);
-                    };
-                    if (subPrice600Check !== []) {
-                        subPriceCheckArray.push(...subPrice600Check);
-                    };
-
-                    let sideSubPriceValue;
-                    if (subPriceCheckArray.length === 0) {
-                        //console.log("메뉴 정보 없음")
-                        sideSubPriceValue = 0;
-                        subSoupPriceArray.push(0);
-                        subSoupPriceFinalArray.push(subSoupPriceArray);
-                    } else if (subPriceCheckArray.length > 0) {
-                        for (let a = 0; a < subPriceCheckArray.length; a++) {
-                            sideSubPriceValue = subPriceCheckArray[a].dpr1.replace(/,/,"")
-                            if (subPriceCheckArray[a].dpr1 === "-") {
-                                sideSubPriceValue = subPriceCheckArray[a].dpr2.replace(/,/,"")
-                                if (subPriceCheckArray[a].dpr2 === "-") {
-                                    sideSubPriceValue = subPriceCheckArray[a].dpr3.replace(/,/,"")
-                                    if (subPriceCheckArray[a].dpr3 === "-") {
-                                        sideSubPriceValue = subPriceCheckArray[a].dpr6.replace(/,/,"")
-                                        if (subPriceCheckArray[a].dpr6 === "-") {
-                                            sideSubPriceValue = 0;
+                    const soupCheck = soupsdata[0].main_ingredient
+                    let soupPriceCheck;
+                    
+                    for (let api = 0; api < 6; api++) {
+                        soupPriceCheck = dataArray[api].data.item.filter(item=>{
+                            if (item.item_name === soupCheck) {
+                                return true
+                            }
+                            return false
+                        })
+                    }
+                    priceCheckArray.push(...soupPriceCheck);
+                        
+                    let sopePriceValue;
+                    if (priceCheckArray.length === 0) {
+                        sopePriceValue = 0;
+                        soupPriceFinalArray.push(0);
+                    } else if (priceCheckArray.length > 0) {
+                        let soupPrice = [];
+                        for (let a = 0; a < priceCheckArray.length; a++) {
+                            sopePriceValue = priceCheckArray[a].dpr1.replace(/,/,"")
+                            if (priceCheckArray[a].dpr1 === "-") {
+                                sopePriceValue = priceCheckArray[a].dpr2.replace(/,/,"")
+                                if (priceCheckArray[a].dpr2 === "-") {
+                                    sopePriceValue = priceCheckArray[a].dpr3.replace(/,/,"")
+                                    if (priceCheckArray[a].dpr3 === "-") {
+                                        sopePriceValue = priceCheckArray[a].dpr6.replace(/,/,"")
+                                        if (priceCheckArray[a].dpr6 === "-") {
+                                            sopePriceValue = 0;
                                         }
                                     }
                                 }
                             }
-                            
-                        let subPriceResult
-                        let subOnePrice
-                        const subSideCountType = subPriceCheckArray[a].unit;
-                            if (subSideCountType.includes('kg')) {
-                                subPriceResult = 90 / 1000;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('g')) {
-                                subPriceResult = 90 / 1000;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('장')) {
-                                subPriceResult = 1 / 2;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('마리')) {
-                                subPriceResult = 1 / 4;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('2마리')) {
-                                subPriceResult = 1 / 8;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('5마리')) {
-                                subPriceResult = 1 / 20;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('개')) {
-                                subPriceResult = 1 / 2;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
-                            } else if (subSideCountType.includes('리터')) {
-                                subPriceResult = 90 / 1000;
-                                subOnePrice = Number(sideSubPriceValue) * subPriceResult;
+                            soupPrice.push(sopePriceValue)
+                        }
+                        let priceResult
+                        let onePrice
+                        const resulting = Math.min.apply(null, soupPrice);
+                        const soupCountType = priceCheckArray[0].unit;
+                        const me_W = soupsdata[0].main_ingredient_weight;
+                        const number_regex = soupCountType.replace(/[^0-9]/g, "");
+                        const type_regex = soupCountType.replace(/[0-9]/g, "");
+    
+                        if (type_regex === 'kg') {
+                            priceResult = Number(me_W) / (1000 * Number(number_regex));
+                            onePrice = Number(resulting) * priceResult;
+                        } else if (type_regex === 'g') {
+                            priceResult = Number(me_W) / (1 * Number(number_regex));
+                            onePrice = Number(resulting) * priceResult;
+                        } else if (type_regex === '마리') {
+                            priceResult = Number(me_W) / (3 * Number(number_regex));
+                            onePrice = Number(resulting) * priceResult;
+                        } else if (type_regex === '개') {
+                            priceResult = Number(me_W) / (2 * Number(number_regex));
+                            onePrice = Number(resulting) * priceResult;
+                        } else if (type_regex === '포기') {
+                            priceResult = Number(me_W) / (1 * Number(number_regex));
+                            onePrice = Number(resulting) * priceResult;
+                        } else if (type_regex === '리터') {
+                            priceResult = Number(me_W) / (1000 * Number(number_regex));
+                            onePrice = Number(resulting) * priceResult;
+                        }
+                        soupPriceFinalArray.push(onePrice);
+                    }
+                    const subSoupLength = soupsdata[0].ingredient.length
+                    if (subSoupLength > 0) {
+                        for (let i = 0; i < subSoupLength; i++) {
+                            const testArray = [];
+                            const subSoupLength = soupsdata[0].ingredient[i]
+                            for (let api = 0; api < 6; api++) {
+                                let subSidePriceCheck = dataArray[api].data.item.filter(item=>{
+                                    if (item.item_name === subSoupLength) {
+                                        return true
+                                    }
+                                    return false
+                                })
+                                if (subSidePriceCheck.length !== 0) {
+                                    testArray.push(...subSidePriceCheck);
+                                }
                             }
-                            subSoupPriceArray.push(subOnePrice);
-                        }
-
-                        let lowSubPrice = subSoupPriceArray.reduce((p, c) => p + c, 0) / subSoupPriceArray.length;
-
-                        if (lowSubPrice <= soup) {
-                            //console.log("국_서브_가격 안넘어감")
-                            let array = [];
-                            array.push(lowSubPrice)
-                            subSoupPriceFinalArray.push(array);
-                        } else if (lowSubPrice > soup) {
-                            //console.log("== 국_서브_가격 넘어가서 재실행 ==")
-                            i--;
-                            break reStart;
-                        }
-                    }
-                }
-
-                let finalPriceResult
-                if (subSoupPriceFinalArray[y] >= 1) {
-                    finalPriceResult = soupPriceFinalArray[y] + subSoupPriceFinalArray[y];
-                } else if (subSoupPriceFinalArray[y] !== true) {
-                    finalPriceResult = soupPriceFinalArray[y]
-                };
-
-                if (finalPriceResult <= soup) {
-                    //console.log("합친_가격 안넘어감")
-                    finalArray.push(...finalPriceResult);
-
-                } else if (finalPriceResult > soup) {
-                    //console.log("== 합친_가격 넘어가서 재실행 ==")
-                    i--;
-                    break reStart;
-                }
-
-
-// price 코드 공사중 ....---------------------------------------------------------------------------------
-
-
-                if (filterAraay.length == 0) {
-                    filterAraay.push(...soupsdata);
-                } else if (filterAraay.length > 0) {
-                    const arrayNum = filterAraay.length;
-                    for (let o = 0; o < arrayNum; o++) {
-                        const checkingre = filterAraay[o].main_ingredient === soupsdata[0].main_ingredient;
-                        if (checkingre) {
-                            y--;
-                        } else if (!checkingre && y === 1) {
-                            filterAraay.push(...soupsdata);
-                        } else if (!checkingre && y === 2 && o === 1) {
-                            filterAraay.push(...soupsdata);
-                        }
-                    }
-                }
-            }
-            if (filterAraay.length === 0) {
-                console.log("1일 중복 메뉴 검증 넘어감")
-
-            } else if (filterAraay.length !== 0) {
-
-                const soups = filterAraay;
-                if (soupsAraay.length == 3) {
-                    check1: for (let n = 0; n < 3; n++) {
-                        const nameCheck = soups[n].menuname;
-                        for (let u = 0; u < 3; u ++) {
-                            const nameCheck2 = soupsAraay[u].menuname;
-                            const final = nameCheck === nameCheck2;
-                            if (final) {
-                                i--;
-                                break check1;
-                            } else if (n == 2 && u == 2 && !final) {
-                                ctx.body.sides.push(soups);
-                                ctx.body.price.push(finalArray);
+                            if (testArray.length > 0) {
+                                subPriceCheckArray.push(testArray);
+                            } else if (testArray.length === 0) {
+                                subPriceCheckArray.push(...testArray);
                             }
                         }
-                        if (n == 2) {
-                            soupsAraay.length = 0;
+    
+    
+                        let sideSubPriceValue;
+                        if (subPriceCheckArray.length === 0) {
+                            //console.log("메뉴 정보 없음")
+                            sideSubPriceValue = 0;
+                            subSoupPriceFinalArray.push(0);
+                        } else if (subPriceCheckArray.length > 0) {
+                            let subSidesPrice = [];
+                            for (let a = 0; a < subPriceCheckArray.length; a++) {
+                                for (let b = 0; b < subPriceCheckArray[a].length; b++) {
+                                    sideSubPriceValue = subPriceCheckArray[a][b].dpr1.replace(/,/,"")
+                                    if (subPriceCheckArray[a][b].dpr1 === "-") {
+                                        sideSubPriceValue = subPriceCheckArray[a][b].dpr2.replace(/,/,"")
+                                        if (subPriceCheckArray[a][b].dpr2 === "-") {
+                                            sideSubPriceValue = subPriceCheckArray[a][b].dpr3.replace(/,/,"")
+                                            if (subPriceCheckArray[a][b].dpr3 === "-") {
+                                                sideSubPriceValue = subPriceCheckArray[a][b].dpr6.replace(/,/,"")
+                                                if (subPriceCheckArray[a][b].dpr6 === "-") {
+                                                    sideSubPriceValue = 0;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    subSidesPrice.push(sideSubPriceValue)
+                                }
+                                const subResulting = Math.min.apply(null, subSidesPrice);
+                                
+                                let subPriceResult
+                                let subOnePrice
+                                const subSideCountType = subPriceCheckArray[a][0].unit;
+                                const in_W = soupsdata[0].ingredient_weight[a];
+                                const number_regex = subSideCountType.replace(/[^0-9]/g, "");
+                                const type_regex = subSideCountType.replace(/[0-9]/g, "");
+    
+                                if (type_regex === 'kg') {
+                                    subPriceResult = Number(in_W) / (1000 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * subPriceResult;
+                                } else if (type_regex === 'g') {
+                                    subPriceResult = Number(in_W) / (1 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * subPriceResult;
+                                } else if (type_regex === '마리') {
+                                    subPriceResult = Number(in_W) / (3 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * subPriceResult;
+                                } else if (type_regex === '개') {
+                                    subPriceResult = Number(in_W) / (2 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * subPriceResult;
+                                } else if (type_regex === '포기') {
+                                    subPriceResult = Number(in_W) / (1 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * subPriceResult;
+                                } else if (type_regex === '리터') {
+                                    subPriceResult = Number(in_W) / (1000 * Number(number_regex));
+                                    subOnePrice = Number(subResulting) * subPriceResult;
+                                }
+                                subSoupPriceArray.push(subOnePrice);
+                            }
+                            const subReduce = subSoupPriceArray.reduce((a,b) => (a+b));
+                            subSoupPriceFinalArray.push(subReduce); 
                         }
+                    } else if (subSoupLength === 0) {
+                        subSoupPriceFinalArray.push(0);
                     }
-                } else if (soupsAraay.length == 0) {
-                    soupsAraay.push(...soups);
-                    ctx.body.soups.push(soups);
-                    ctx.body.price.push(finalArray);
+    
+                    let finalPriceResult
+                    if (subSoupPriceFinalArray[0] >= 1) {
+                        finalPriceResult = soupPriceFinalArray[0] + subSoupPriceFinalArray[0];
+                    } else if (subSoupPriceFinalArray[0] !== true) {
+                        finalPriceResult = soupPriceFinalArray[0]
+                    };
+                    if (finalPriceResult <= soup) {
+                        console.log("합친_가격 안넘어감")
+                        finalArray.push(finalPriceResult);
+                    } else if (finalPriceResult > soup) {
+                        console.log("== 합친_가격 넘어가서 재실행 ==")
+                        i--;
+                        break reStart;
+                    }
+    
+    
+    
+                    if (y === 2) {
+                        ctx.body.soups.push(filterArray)
+                        ctx.body.price.push(finalArray)
+                    }
                 }
-            }
+
+
+            }//--
+            // 국 가격 어제오늘 중복 체크 시작 ---------
         } catch (e) {
             ctx.throw(500, e);
         }
     }
+    console.log(ctx.body)
     console.log("soup 끝");
 };
