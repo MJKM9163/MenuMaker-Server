@@ -3,7 +3,6 @@ import Joi from 'joi';
 
 export const comentCreate = async ctx => {
     const { username, body } = ctx.request.body;
-
     const schema = Joi.object().keys({
         username: Joi.string().required(),
         body: Joi.string().max(200).required(),
@@ -34,7 +33,7 @@ export const comentCreate = async ctx => {
 
 export const comentList = async ctx => {
     try {
-        const listCall = await Coment.find().exec();
+        const listCall = await Coment.find().sort({"_id":-1}).exec();
         ctx.body = listCall;
     } catch (e) {
         ctx.throw(500, e);

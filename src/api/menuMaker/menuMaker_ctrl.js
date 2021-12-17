@@ -233,9 +233,7 @@ export const riceList = async ctx => {
                         subPriceArray.push([]);
                     };
                 };
-                console.log("부재료 최종 추출 == > ",subPriceArray)
                 priceBreak: for (let c = 0; c < 3; c++) {
-                    console.log(`${c}번째 같은 종류 수 == > `, subPriceArray[c].length)
                     const dozenPriceValue = subPriceArray[c].length;
                         let priceValue = priceArray[c][0].dpr1.replace(/,/,"") // 당일 가격
                         if (priceValue === "-") {
@@ -793,7 +791,6 @@ export const sideList = async ctx => {
                 if (finalPriceResult <= submain) {
                     finalArray.push(finalPriceResult);
                 } else if (finalPriceResult > submain) {
-                    console.log('새로 시작 가격 넘어감')
                     i--;
                     break reStart;
                 }
@@ -853,7 +850,6 @@ export const soupList = async ctx => {
     const request = parseInt(ctx.request.body.number);
     const outList = ctx.request.body.outList;
     const allOutList = ctx.request.body.allOutList;
-    const soupsArray = [];
     ctx.body = ({
         soups: [],
         price: [],
@@ -864,8 +860,6 @@ export const soupList = async ctx => {
 
         try {
             reStart: for (let y = 0; y < 3; y++) {
-                console.log('시작y ==> ',y)
-                console.log('누적 랭스 ==> ', filterArray.length)
                 let control = true;
                 let soupPriceFinalArray = [];
                 let subSoupPriceFinalArray = [];
@@ -890,12 +884,10 @@ export const soupList = async ctx => {
                             y--;
                             break stop_for;
                         } else if (check_menu !== true && t === dayLength -1) {
-                            console.log('통과')
                             filterArray.push(...soupsdata)
                         }
                     }
                 }
-                console.log(dayLength)
                 if (control === true) {
 
                     const soupCheck = soupsdata[0].main_ingredient
@@ -988,7 +980,6 @@ export const soupList = async ctx => {
     
                         let sideSubPriceValue;
                         if (subPriceCheckArray.length === 0) {
-                            //console.log("메뉴 정보 없음")
                             sideSubPriceValue = 0;
                             subSoupPriceFinalArray.push(0);
                         } else if (subPriceCheckArray.length > 0) {
@@ -1054,10 +1045,8 @@ export const soupList = async ctx => {
                         finalPriceResult = soupPriceFinalArray[0]
                     };
                     if (finalPriceResult <= soup) {
-                        console.log("합친_가격 안넘어감")
                         finalArray.push(finalPriceResult);
                     } else if (finalPriceResult > soup) {
-                        console.log("== 합친_가격 넘어가서 재실행 ==")
                         i--;
                         break reStart;
                     }
@@ -1071,12 +1060,10 @@ export const soupList = async ctx => {
                 }
 
 
-            }//--
-            // 국 가격 어제오늘 중복 체크 시작 ---------
+            }
         } catch (e) {
             ctx.throw(500, e);
         }
     }
-    console.log(ctx.body)
     console.log("soup 끝");
 };
