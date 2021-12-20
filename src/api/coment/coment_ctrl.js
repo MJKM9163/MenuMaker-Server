@@ -5,7 +5,7 @@ export const comentCreate = async ctx => {
     const { username, body } = ctx.request.body;
     const schema = Joi.object().keys({
         username: Joi.string().required(),
-        body: Joi.string().max(200).required(),
+        body: Joi.string().max(100).required(),
     });
 
     const result = schema.validate(ctx.request.body);

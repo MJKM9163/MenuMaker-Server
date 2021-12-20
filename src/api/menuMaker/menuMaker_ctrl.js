@@ -417,7 +417,7 @@ export const mainList = async ctx => {
                                     gatherArray.push(...mainPriceCheck);
                                 } 
                             }
-                            if (mainPriceCheck.length === 0) {
+                            if (gatherArray.length === 0) {
                                 mainPriceArray.push([]);
                             }
                             mainPriceArray.push(gatherArray);
@@ -452,6 +452,7 @@ export const mainList = async ctx => {
                                 subPriceArray.push([[]]);
                             };
                         };
+
                         for (let c = 0; c < 6; c++) {
                             let mainsPrice = [];
                             let subResultArray = [];
@@ -459,25 +460,27 @@ export const mainList = async ctx => {
                             const dozenSubPriceValue = subPriceArray[c].length;
                             let priceValue;
                             if (dozenPriceValue === 0) {
-                                subResultArray.push(0)
-                            } for (let single = 0; single < dozenPriceValue; single++) {
-                                priceValue = mainPriceArray[c][single].dpr1.replace(/,/,"") // 당일 가격
-                                if (priceValue === "-") {
-                                    priceValue = mainPriceArray[c][single].dpr2.replace(/,/,"") // 1일전 가격
+                                mainsPrice.push(0)
+                            } else if (dozenPriceValue > 0) {
+                                for (let single = 0; single < dozenPriceValue; single++) {
+                                    priceValue = mainPriceArray[c][single].dpr1.replace(/,/,"") // 당일 가격
                                     if (priceValue === "-") {
-                                        priceValue = mainPriceArray[c][single].dpr3.replace(/,/,"") // 1주일전 가격
+                                        priceValue = mainPriceArray[c][single].dpr2.replace(/,/,"") // 1일전 가격
                                         if (priceValue === "-") {
-                                            priceValue = mainPriceArray[c][single].dpr5.replace(/,/,"") // 1개월전 가격
+                                            priceValue = mainPriceArray[c][single].dpr3.replace(/,/,"") // 1주일전 가격
                                             if (priceValue === "-") {
-                                                priceValue = mainPriceArray[c][single].dpr6.replace(/,/,"") // 1년전 가격
+                                                priceValue = mainPriceArray[c][single].dpr5.replace(/,/,"") // 1개월전 가격
                                                 if (priceValue === "-") {
-                                                    priceValue = '0'; // 가격 없음
+                                                    priceValue = mainPriceArray[c][single].dpr6.replace(/,/,"") // 1년전 가격
+                                                    if (priceValue === "-") {
+                                                        priceValue = '0'; // 가격 없음
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                    mainsPrice.push(priceValue);                              
                                 }
-                                mainsPrice.push(priceValue);                              
                             }
                             const result = Math.min.apply(null, mainsPrice);
 
@@ -536,7 +539,7 @@ export const mainList = async ctx => {
                                         }
                                         subMainsPrice.push(priceSubValue);
                                     }
-                                    const resulting = Math.min.apply(null, subMainsPrice);
+                                    const subResult = Math.min.apply(null, subMainsPrice);
 
                                     let subPriceResult
                                     let subOnePrice
@@ -547,19 +550,19 @@ export const mainList = async ctx => {
                                     const sub_type_regex = subMainCountType.replace(/[0-9]/g, "");
                                     if (sub_type_regex === 'kg') {
                                         subPriceResult = Number(in_W) / (1000 * Number(sub_number_regex));
-                                        subOnePrice = Number(resulting) * subPriceResult;
+                                        subOnePrice = Number(subResult) * subPriceResult;
                                     } else if (sub_type_regex === 'g') {
                                         subPriceResult = Number(in_W) / (1 * Number(sub_number_regex));
-                                        subOnePrice = Number(resulting) * subPriceResult;
+                                        subOnePrice = Number(subResult) * subPriceResult;
                                     } else if (sub_type_regex === '마리') {
                                         subPriceResult = Number(in_W) / (3 * Number(sub_number_regex));
-                                        subOnePrice = Number(resulting) * subPriceResult;
+                                        subOnePrice = Number(subResult) * subPriceResult;
                                     } else if (sub_type_regex === '개') {
                                         subPriceResult = Number(in_W) / (2 * Number(sub_number_regex));
-                                        subOnePrice = Number(resulting) * subPriceResult;
+                                        subOnePrice = Number(subResult) * subPriceResult;
                                     } else if (sub_type_regex === '포기') {
                                         subPriceResult = Number(in_W) / (1 * Number(sub_number_regex));
-                                        subOnePrice = Number(resulting) * subPriceResult;
+                                        subOnePrice = Number(subResult) * subPriceResult;
                                     }
                                     subResultArray.push(subOnePrice)
                                 }
@@ -622,7 +625,6 @@ export const sideList = async ctx => {
                 ]);
                 const sideCheck = sides[0].main_ingredient;
                 let sidePriceCheck;
-                //let gatherArray = [];
                 for (let api = 0; api < 6; api++) {
                     sidePriceCheck = dataArray[api].data.item.filter(item=>{
                         if (item.item_name === sideCheck) {
@@ -889,19 +891,17 @@ export const soupList = async ctx => {
                     }
                 }
                 if (control === true) {
-
                     const soupCheck = soupsdata[0].main_ingredient
                     let soupPriceCheck;
-                    
                     for (let api = 0; api < 6; api++) {
                         soupPriceCheck = dataArray[api].data.item.filter(item=>{
                             if (item.item_name === soupCheck) {
                                 return true
                             }
                             return false
-                        })
+                        });
+                        priceCheckArray.push(...soupPriceCheck);
                     }
-                    priceCheckArray.push(...soupPriceCheck);
                         
                     let sopePriceValue;
                     if (priceCheckArray.length === 0) {
@@ -969,7 +969,9 @@ export const soupList = async ctx => {
                                 if (subSidePriceCheck.length !== 0) {
                                     testArray.push(...subSidePriceCheck);
                                 }
+
                             }
+
                             if (testArray.length > 0) {
                                 subPriceCheckArray.push(testArray);
                             } else if (testArray.length === 0) {
@@ -1050,16 +1052,11 @@ export const soupList = async ctx => {
                         i--;
                         break reStart;
                     }
-    
-    
-    
                     if (y === 2) {
                         ctx.body.soups.push(filterArray)
                         ctx.body.price.push(finalArray)
                     }
                 }
-
-
             }
         } catch (e) {
             ctx.throw(500, e);
