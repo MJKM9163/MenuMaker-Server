@@ -345,7 +345,6 @@ export const riceList = async ctx => {
             ctx.throw(500, e);
         };
     };
-    console.log("rice 끝");
 };
 
 
@@ -588,7 +587,6 @@ export const mainList = async ctx => {
             ctx.throw(500, e);
         };
     }
-    console.log("main 끝");
 };
 
 export const sideList = async ctx => {
@@ -842,7 +840,6 @@ export const sideList = async ctx => {
             ctx.throw(500, e);
         };
     }
-    console.log("side 끝");
 };
 
 export const soupList = async ctx => {
@@ -1062,5 +1059,4 @@ export const soupList = async ctx => {
             ctx.throw(500, e);
         }
     }
-    console.log("soup 끝");
 };

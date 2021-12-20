@@ -3,7 +3,6 @@ import Menu from '../../models/menu';
 import PriceNumber from '../../models/priceNumber';
 
 export const register = async ctx => {
-
     const schema = Joi.object().keys({
         menuname: Joi.string().required(),
         main: Joi.boolean().required(),
@@ -18,7 +17,6 @@ export const register = async ctx => {
         country: Joi.required(),
 
     })
-
     const result = schema.validate(ctx.request.body);
     if (result.error) {
         console.log("Joi 검증에 통과하지 못했어요!");
@@ -26,8 +24,6 @@ export const register = async ctx => {
         ctx.body = result.error;
         return;
     }
-    console.log("메뉴 저장 중.....", ctx.request.body);
-
     const { menuname,
             main,
             description,
@@ -42,11 +38,9 @@ export const register = async ctx => {
     try {
         const exists = await Menu.findByMenuname(menuname)
         if (exists) {
-            console.log("중복되는 이름이 있어요");
             ctx.status = 409;
             return;
         }
-
         const menu = new Menu({
             menuname,
             main,
@@ -60,12 +54,8 @@ export const register = async ctx => {
             sauce_base,
             country
         });
-
         await menu.save();
         ctx.body = menu;
-
-        console.log("성공적으로 저장");
-
     } catch (e) {
         ctx.throw(500, e);
     };
