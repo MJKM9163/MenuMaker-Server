@@ -7,11 +7,11 @@ import api from './api';
 import jwtMiddleware from './lib/jwtMiddleware';
 
 //rhkrrbaud:apsbfh9163@3.144.241.82:27017
-const URI = `mongodb://localhost:27017/menumaker`
-const { PORT } = process.env;
+//const URI = `mongodb://localhost:27017/menumaker`
+const { PORT, MONGO_URI } = process.env;
 
 mongoose
-.connect(URI, { useUnifiedTopology: true, useNewUrlParser: true })
+.connect(MONGO_URI, { useUnifiedTopology: true, useNewUrlParser: true })
     .then(() => {
         console.log('몽고DB 연결');
     })
