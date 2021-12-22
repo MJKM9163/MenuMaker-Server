@@ -443,6 +443,7 @@ export const mainList = async ctx => {
                                     if (i < subMainLength - 1) {
                                         subAddArray.push(subGatherArray)
                                     } else if (i === subMainLength - 1) {
+                                        subAddArray.push(subGatherArray)
                                         subPriceArray.push(subAddArray);
                                     }
                                 }
@@ -690,14 +691,14 @@ export const sideList = async ctx => {
                 }
                 if (sides[0].ingredient.length > 0) {
                     const subMainLength = sides[0].ingredient.length;
-                    const subSideCheck = sides[0].main_ingredient;
-                    let subGatherArray = [];
-
+                    const subSideCheck = sides[0].ingredient;
+                    
                     const subAddArray = [];
                     for (let i = 0; i < subMainLength; i++) {
+                        let subGatherArray = [];
                         for (let api = 0; api < 6; api++) {
                             let subSidePriceCheck = dataArray[api].data.item.filter(item=>{
-                                if (item.item_name === subSideCheck) {
+                                if (item.item_name === subSideCheck[i]) {
                                     return true
                                 }
                                 return false
@@ -708,12 +709,12 @@ export const sideList = async ctx => {
                         }
 
                         if (subMainLength === 1) {
-                            subPriceCheckArray.push(subGatherArray);
+                            subPriceCheckArray.push([subGatherArray]);
                         } else if (subMainLength > 1) {
                             if (i < subMainLength - 1) {
-                                subAddArray.push(...subGatherArray)
+                                subAddArray.push(subGatherArray)
                             } else if (i === subMainLength - 1) {
-                                subAddArray.push(...subGatherArray)
+                                subAddArray.push(subGatherArray)
                                 subPriceCheckArray.push(subAddArray);
                             }
                         }
@@ -726,30 +727,30 @@ export const sideList = async ctx => {
                         let subSidesPrice = []
                         for (let a = 0; a < subPriceCheckArray.length; a++) {
                             for (let b = 0; b < subPriceCheckArray[a].length; b++) {
-
-                                sideSubPriceValue = subPriceCheckArray[a][b].dpr1.replace(/,/,"")
-                                if (subPriceCheckArray[a][b].dpr1 === "-") {
-                                    sideSubPriceValue = subPriceCheckArray[a][b].dpr2.replace(/,/,"")
-                                    if (subPriceCheckArray[a][b].dpr2 === "-") {
-                                        sideSubPriceValue = subPriceCheckArray[a][b].dpr3.replace(/,/,"")
-                                        if (subPriceCheckArray[a][b].dpr3 === "-") {
-                                            sideSubPriceValue = subPriceCheckArray[a][b].dpr6.replace(/,/,"")
-                                            if (subPriceCheckArray[a][b].dpr6 === "-") {
-                                                sideSubPriceValue = 0;
+                                for (let c = 0; c < subPriceCheckArray[a][b].length; c++) {
+                                    sideSubPriceValue = subPriceCheckArray[a][b][c].dpr1.replace(/,/,"")
+                                    if (subPriceCheckArray[a][b][c].dpr1 === "-") {
+                                        sideSubPriceValue = subPriceCheckArray[a][b][c].dpr2.replace(/,/,"")
+                                        if (subPriceCheckArray[a][b][c].dpr2 === "-") {
+                                            sideSubPriceValue = subPriceCheckArray[a][b][c].dpr3.replace(/,/,"")
+                                            if (subPriceCheckArray[a][b][c].dpr3 === "-") {
+                                                sideSubPriceValue = subPriceCheckArray[a][b][c].dpr6.replace(/,/,"")
+                                                if (subPriceCheckArray[a][b][c].dpr6 === "-") {
+                                                    sideSubPriceValue = '0';
+                                                }
                                             }
                                         }
                                     }
+                                    subSidesPrice.push(sideSubPriceValue)
                                 }
-                                subSidesPrice.push(sideSubPriceValue)
-                            }
+                            
                             const subResulting = Math.min.apply(null, subSidesPrice);
-
                             let subOnePrice
                             if (subPriceCheckArray[a].length === 0) {
                                 subOnePrice = 0;
                                 subSidesPriceArray.push(subOnePrice);
                             } else if (subPriceCheckArray[a].length > 0) {
-                                const subSideCountType = subPriceCheckArray[a][0].unit;
+                                const subSideCountType = subPriceCheckArray[a][b][0].unit;
                                 const in_W = sides[0].ingredient_weight[a];
                                 const number_regex = subSideCountType.replace(/[^0-9]/g, "");
                                 const type_regex = subSideCountType.replace(/[0-9]/g, "");
@@ -774,6 +775,7 @@ export const sideList = async ctx => {
                                 }
                                 subSidesPriceArray.push(subOnePrice);
                             }
+                        }
                         }
                         const subReduce = subSidesPriceArray.reduce((a,b) => (a+b));
                         subSidesPriceFinalArray.push(subReduce);                      
